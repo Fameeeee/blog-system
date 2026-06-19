@@ -24,7 +24,7 @@ import {
   deleteBlog,
   UnauthorizedError,
 } from '@/lib/services/blog.service';
-import { Blog, BlogStatus } from '@/lib/types/blog.types';
+import { Blog, BlogStatus, PaginatedBlogsResponse } from '@/lib/types/blog.types';
 import ConfirmationModal from '@/components/ConfirmationModal';
 
 export default function AdminDashboardPage() {
@@ -74,8 +74,7 @@ export default function AdminDashboardPage() {
   const handleToggleStatus = async (blog: Blog) => {
     try {
       // Optimistic update
-      const optimisticData = {
-        ...blogsData,
+      const optimisticData: PaginatedBlogsResponse = {
         data: blogs.map((b) =>
           b.id === blog.id
             ? {
@@ -87,6 +86,12 @@ export default function AdminDashboardPage() {
               }
             : b
         ),
+        meta: meta || {
+          total: blogs.length,
+          page: 1,
+          limit: 10,
+          totalPages: 1,
+        },
       };
 
       // Update UI immediately
