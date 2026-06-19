@@ -11,12 +11,12 @@
  * - Auto-redirect on success
  */
 
-import { useState, FormEvent } from 'react';
+import { Suspense, useState, FormEvent } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { login } from '@/lib/services/auth.service';
 
-export default function AdminLoginPage() {
+function AdminLoginContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   
@@ -319,5 +319,13 @@ export default function AdminLoginPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-900 flex items-center justify-center">กำลังโหลด...</div>}>
+      <AdminLoginContent />
+    </Suspense>
   );
 }
