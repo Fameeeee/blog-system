@@ -11,7 +11,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import useSWR from 'swr';
@@ -21,7 +21,7 @@ import { CommentStatus } from '@/lib/types/comment.types';
 import { logout } from '@/lib/services/auth.service';
 import CommentsTable from '@/components/admin/CommentsTable';
 
-export default function CommentsPage() {
+function CommentsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [mounted, setMounted] = useState(false);
@@ -68,7 +68,7 @@ export default function CommentsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 text-black">
+    <>
       {/* Navigation Bar */}
       <nav className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -212,6 +212,16 @@ export default function CommentsPage() {
           />
         )}
       </div>
+    </>
+  );
+}
+
+export default function CommentsPage() {
+  return (
+    <div className="min-h-screen bg-gray-50 text-black">
+      <Suspense fallback={<div>กำลังโหลด...</div>}>
+        <CommentsPageContent />
+      </Suspense>
     </div>
   );
 }
