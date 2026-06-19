@@ -58,6 +58,24 @@ function getAuthHeaders(): HeadersInit {
 }
 
 /**
+ * Get headers with optional Bearer token
+ * Does not throw if token is missing (for public endpoints)
+ */
+function getOptionalAuthHeaders(): HeadersInit {
+  const token = Cookies.get(TOKEN_COOKIE_NAME);
+  
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+  };
+
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  return headers;
+}
+
+/**
  * Handle API response and errors
  */
 async function handleResponse<T>(response: Response): Promise<T> {
@@ -98,12 +116,19 @@ async function handleResponse<T>(response: Response): Promise<T> {
 /**
  * Fetch paginated blogs
  * 
+ * Supports both public (PUBLISHED) and authenticated (admin) blog fetching
+ * Authentication is optional - required only for non-PUBLISHED blogs
+ * 
  * @param params - Query parameters for pagination and filtering
  * @returns Promise<PaginatedBlogsResponse>
  * 
  * @example
  * ```typescript
- * const blogs = await fetchBlogs({ page: 1, limit: 10 });
+ * // Public - fetch published blogs (no auth needed)
+ * const blogs = await fetchBlogs({ page: 1, limit: 10, status: BlogStatus.PUBLISHED });
+ * 
+ * // Admin - fetch all blogs including unpublished (auth required)
+ * const allBlogs = await fetchBlogs({ page: 1, limit: 10 });
  * ```
  */
 export async function fetchBlogs(
@@ -126,7 +151,7 @@ export async function fetchBlogs(
 
   const response = await fetch(`${BLOGS_ENDPOINT}?${queryParams.toString()}`, {
     method: 'GET',
-    headers: getAuthHeaders(),
+    headers: getOptionalAuthHeaders(),
   });
 
   return handleResponse<PaginatedBlogsResponse>(response);
@@ -138,7 +163,7 @@ export async function fetchBlogs(
  * @param id - Blog ID
  * @returns Promise<Blog>
  */
-export async function fetchBlogById(id: number): Promise<Blog> {
+export async function fetchBlogById(id: string): Promise<Blog> {
   const response = await fetch(`${BLOGS_ENDPOINT}/${id}`, {
     method: 'GET',
     headers: getAuthHeaders(),
@@ -184,7 +209,7 @@ export async function createBlog(data: BlogFormData): Promise<Blog> {
  * @param data - Blog form data
  * @returns Promise<Blog>
  */
-export async function updateBlog(id: number, data: Partial<BlogFormData>): Promise<Blog> {
+export async function updateBlog(id: string, data: Partial<BlogFormData>): Promise<Blog> {
   const response = await fetch(`${BLOGS_ENDPOINT}/${id}`, {
     method: 'PATCH',
     headers: getAuthHeaders(),
@@ -202,7 +227,7 @@ export async function updateBlog(id: number, data: Partial<BlogFormData>): Promi
  * @returns Promise<Blog>
  */
 export async function toggleBlogStatus(
-  id: number,
+  id: string,
   currentStatus: BlogStatus
 ): Promise<Blog> {
   const newStatus =
@@ -219,7 +244,7 @@ export async function toggleBlogStatus(
  * @param id - Blog ID
  * @returns Promise<void>
  */
-export async function deleteBlog(id: number): Promise<void> {
+export async function deleteBlog(id: string): Promise<void> {
   const response = await fetch(`${BLOGS_ENDPOINT}/${id}`, {
     method: 'DELETE',
     headers: getAuthHeaders(),
