@@ -207,7 +207,7 @@ export default function CommentsPage() {
             comments={comments}
             currentPage={page}
             limit={limit}
-            statusFilter={statusFilter}
+            statusFilter={statusFilter || undefined}
             onRefresh={() => mutate()}
           />
         )}
