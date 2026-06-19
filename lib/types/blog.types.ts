@@ -18,10 +18,14 @@ export enum BlogStatus {
 export interface Blog {
   id: number;
   title: string;
+  slug?: string;
+  excerpt?: string;
   content: string;
   featuredImage?: string;
+  coverImageUrl?: string;
+  additionalImages?: string[];
   status: BlogStatus;
-  views: number;
+  views?: number;
   authorId: number;
   createdAt: string;
   updatedAt: string;
@@ -50,10 +54,13 @@ export interface PaginatedBlogsResponse {
  */
 export interface BlogFormData {
   title: string;
+  slug?: string;
+  excerpt: string;
   content: string;
-  featuredImage?: string;
+  coverImageUrl: string;
+  additionalImages?: string[];
   status?: BlogStatus;
-  authorId: number;
+  authorId?: number;
 }
 
 /**

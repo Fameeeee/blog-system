@@ -69,17 +69,27 @@ async function handleResponse<T>(response: Response): Promise<T> {
 
     // Try to parse error response
     let errorMessage = ERROR_MESSAGES[response.status] || 'เกิดข้อผิดพลาด';
+    let errorDetails: string[] = [];
     
     try {
-      const errorData: ApiError = await response.json();
-      if (errorData.message) {
+      const errorData: any = await response.json();
+      
+      // Handle message array (e.g., validation errors)
+      if (Array.isArray(errorData.message)) {
+        errorDetails = errorData.message;
+        errorMessage = errorData.message.join(', ');
+      }
+      // Handle message string
+      else if (typeof errorData.message === 'string') {
         errorMessage = errorData.message;
       }
     } catch (e) {
       // Use default error message
     }
 
-    throw new Error(errorMessage);
+    const error = new Error(errorMessage);
+    (error as any).details = errorDetails;
+    throw error;
   }
 
   return await response.json();
@@ -123,7 +133,7 @@ export async function fetchBlogs(
 }
 
 /**
- * Fetch single blog by ID
+ * Fetch single blog by ID (authenticated)
  * 
  * @param id - Blog ID
  * @returns Promise<Blog>
@@ -132,6 +142,20 @@ export async function fetchBlogById(id: number): Promise<Blog> {
   const response = await fetch(`${BLOGS_ENDPOINT}/${id}`, {
     method: 'GET',
     headers: getAuthHeaders(),
+  });
+
+  return handleResponse<Blog>(response);
+}
+
+/**
+ * Fetch single blog by slug (public)
+ * 
+ * @param slug - Blog slug
+ * @returns Promise<Blog>
+ */
+export async function fetchBlogBySlug(slug: string): Promise<Blog> {
+  const response = await fetch(`${BLOGS_ENDPOINT}/${slug}`, {
+    method: 'GET',
   });
 
   return handleResponse<Blog>(response);
