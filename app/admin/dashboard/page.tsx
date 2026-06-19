@@ -412,7 +412,7 @@ export default function AdminDashboardPage() {
                                 d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                               />
                             </svg>
-                            {blog.views.toLocaleString()}
+                            {(blog.views ?? 0).toLocaleString()}
                           </div>
                         </td>
 
@@ -426,7 +426,7 @@ export default function AdminDashboardPage() {
                           <div className="flex items-center justify-end space-x-2">
                             {/* Edit Button */}
                             <Link
-                              href={`/admin/blogs/${blog.id}/edit`}
+                              href={`/admin/blogs/${blog.slug}/edit`}
                               className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                               title="แก้ไข"
                             >

@@ -318,18 +318,6 @@ export default function ImageUploader({
             </div>
           </div>
         )}
-
-        {/* Instructions */}
-        {!selectedFile && !uploadedImageUrl && (
-          <div className="text-xs text-gray-500 space-y-1 bg-blue-50 p-3 rounded-lg border border-blue-100">
-            <p className="font-medium text-blue-900">💡 คำแนะนำ:</p>
-            <ul className="list-disc list-inside space-y-1 text-blue-800">
-              <li>รองรับไฟล์: JPEG, PNG, WebP</li>
-              <li>ขนาดไฟล์สูงสุด: 5MB</li>
-              <li>รูปภาพจะถูกอัปโหลดไปยัง Cloud Storage</li>
-            </ul>
-          </div>
-        )}
       </div>
     </div>
   );

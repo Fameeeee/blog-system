@@ -1,13 +1,15 @@
 /**
  * Upload Service - Image Upload to Cloud Storage (Cloudinary)
  * API Endpoint: POST /upload
- * Authentication: JWT Token required
+ * Authentication: JWT Token required (from cookies)
  */
 
+import Cookies from 'js-cookie';
 import { UploadResponse, UploadError } from '../types/upload.types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 const UPLOAD_ENDPOINT = `${API_BASE_URL}/upload`;
+const TOKEN_COOKIE_NAME = 'access_token';
 
 /**
  * ข้อความแสดงข้อผิดพลาดภาษาไทย
@@ -20,19 +22,11 @@ const ERROR_MESSAGES: Record<number, string> = {
 };
 
 /**
- * ดึง JWT Token จาก localStorage
+ * ดึง JWT Token จาก cookies
  * @returns JWT Token หรือ null ถ้าไม่พบ
  */
 function getAuthToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  
-  // ลองหลายวิธีในการดึง token
-  return (
-    localStorage.getItem('jwt_token') ||
-    localStorage.getItem('access_token') ||
-    localStorage.getItem('token') ||
-    null
-  );
+  return Cookies.get(TOKEN_COOKIE_NAME) || null;
 }
 
 /**
@@ -130,9 +124,5 @@ export function hasAuthToken(): boolean {
  * ลบ JWT Token (ใช้เมื่อ logout)
  */
 export function clearAuthToken(): void {
-  if (typeof window === 'undefined') return;
-  
-  localStorage.removeItem('jwt_token');
-  localStorage.removeItem('access_token');
-  localStorage.removeItem('token');
+  Cookies.remove(TOKEN_COOKIE_NAME, { path: '/' });
 }
