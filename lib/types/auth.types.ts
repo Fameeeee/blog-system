@@ -49,6 +49,6 @@ export interface AuthError {
  * User Session Data
  */
 export interface UserSession {
-  id: number;
+  id: string; // UUID
   username: string;
 }

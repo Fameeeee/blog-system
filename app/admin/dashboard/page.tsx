@@ -174,7 +174,13 @@ export default function AdminDashboardPage() {
                   href="/admin/dashboard"
                   className="px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg"
                 >
-                  บทความ
+                  📝 บทความ
+                </Link>
+                <Link
+                  href="/admin/comments"
+                  className="px-3 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+                >
+                  💬 ความเห็น
                 </Link>
               </nav>
             </div>
@@ -412,7 +418,7 @@ export default function AdminDashboardPage() {
                                 d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
                               />
                             </svg>
-                            {(blog.views ?? 0).toLocaleString()}
+                            {(blog.viewCount ?? 0).toLocaleString()}
                           </div>
                         </td>
 

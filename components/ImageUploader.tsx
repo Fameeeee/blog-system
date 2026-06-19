@@ -71,9 +71,9 @@ export default function ImageUploader({
   };
 
   /**
-   * จัดการเมื่อมีการเลือกไฟล์
+   * จัดการเมื่อมีการเลือกไฟล์ - Auto-upload on selection
    */
-  const handleFileSelect = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     
     // Reset states
@@ -105,40 +105,29 @@ export default function ImageUploader({
     const newPreviewUrl = URL.createObjectURL(file);
     setSelectedFile(file);
     setPreviewUrl(newPreviewUrl);
+    
+    // Auto-upload the file immediately after validation
+    await uploadFileAutomatically(file);
   };
 
   /**
-   * จัดการการอัปโหลดไฟล์
+   * Auto-upload file - called automatically after file selection
    */
-  const handleUpload = async () => {
-    if (!selectedFile) {
-      setError('กรุณาเลือกไฟล์รูปภาพก่อน');
-      return;
-    }
-
+  const uploadFileAutomatically = async (file: File) => {
     setUploading(true);
     setError(null);
 
     try {
-      const result = await uploadImage(selectedFile);
+      const result = await uploadImage(file);
       
-      // อัปโหลดสำเร็จ
+      // Upload successful
       setUploadedImageUrl(result.imageUrl);
       onUploadSuccess(result.imageUrl);
 
-      // ล้างข้อมูล
+      // Clear selection for next upload
       setSelectedFile(null);
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-        setPreviewUrl(null);
-      }
-      
-      // Reset file input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
-
     } catch (err) {
+      // Show error but keep preview for retry
       setError(err instanceof Error ? err.message : 'เกิดข้อผิดพลาดในการอัปโหลด');
     } finally {
       setUploading(false);
@@ -146,9 +135,9 @@ export default function ImageUploader({
   };
 
   /**
-   * ยกเลิกการเลือกไฟล์
+   * ยกเลิกการเลือกไฟล์ - Clear preview and reset
    */
-  const handleCancel = () => {
+  const handleClearPreview = () => {
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl);
     }
@@ -177,9 +166,12 @@ export default function ImageUploader({
         {/* File Input Section */}
         <div className="flex flex-col space-y-2">
           <label className="block text-sm font-medium text-gray-700">
-            อัปโหลดรูปภาพ
+            เลือกรูปภาพ
             <span className="text-xs text-gray-500 ml-2">
               (JPEG, PNG, WebP - สูงสุด 5MB)
+            </span>
+            <span className="block text-xs text-blue-600 font-medium mt-1">
+              ✨ อัปโหลดอัตโนมัติ หลังจากเลือกไฟล์
             </span>
           </label>
           
@@ -193,34 +185,24 @@ export default function ImageUploader({
           />
         </div>
 
-        {/* Preview Section */}
-        {previewUrl && selectedFile && (
+        {/* Preview Section - Shows while file is uploading or after selection */}
+        {previewUrl && (
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 bg-gray-50">
             <div className="flex flex-col items-center space-y-3">
-              <img
-                src={previewUrl}
-                alt="Preview"
-                className="max-w-full max-h-64 rounded-lg shadow-md object-contain"
-              />
-              
-              <div className="text-sm text-gray-600 text-center">
-                <p className="font-medium">{selectedFile.name}</p>
-                <p className="text-xs text-gray-500">
-                  {formatFileSize(selectedFile.size)}
-                </p>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex space-x-3 w-full">
-                <button
-                  onClick={handleUpload}
-                  disabled={uploading}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {uploading ? (
-                    <span className="flex items-center justify-center">
+              <div className="relative w-full">
+                <img
+                  src={previewUrl}
+                  alt="Preview"
+                  className={`max-w-full max-h-64 rounded-lg shadow-md object-contain mx-auto ${
+                    uploading ? 'opacity-60' : ''
+                  }`}
+                />
+                
+                {uploading && (
+                  <div className="absolute inset-0 flex items-center justify-center rounded-lg">
+                    <div className="flex flex-col items-center space-y-2">
                       <svg 
-                        className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" 
+                        className="animate-spin h-8 w-8 text-blue-600" 
                         xmlns="http://www.w3.org/2000/svg" 
                         fill="none" 
                         viewBox="0 0 24 24"
@@ -239,21 +221,29 @@ export default function ImageUploader({
                           d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                         />
                       </svg>
-                      กำลังอัปโหลด...
-                    </span>
-                  ) : (
-                    '📤 อัปโหลด'
-                  )}
-                </button>
-                
-                <button
-                  onClick={handleCancel}
-                  disabled={uploading}
-                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  ยกเลิก
-                </button>
+                      <span className="text-sm font-medium text-blue-600">กำลังอัปโหลด...</span>
+                    </div>
+                  </div>
+                )}
               </div>
+              
+              <div className="text-sm text-gray-600 text-center">
+                <p className="font-medium">{selectedFile?.name || 'Uploading...'}</p>
+                <p className="text-xs text-gray-500">
+                  {selectedFile ? formatFileSize(selectedFile.size) : ''}
+                </p>
+              </div>
+
+              {/* Show clear button only if upload failed or is not uploading */}
+              {!uploading && error && (
+                <button
+                  onClick={handleClearPreview}
+                  disabled={uploading}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
+                >
+                  เลือกไฟล์อื่น
+                </button>
+              )}
             </div>
           </div>
         )}
@@ -302,9 +292,6 @@ export default function ImageUploader({
                 <p className="text-sm font-medium text-green-800">
                   ✅ อัปโหลดสำเร็จ!
                 </p>
-                <p className="text-xs text-green-700 mt-1 break-all">
-                  {uploadedImageUrl}
-                </p>
               </div>
             </div>
             
@@ -316,6 +303,15 @@ export default function ImageUploader({
                 className="max-w-full max-h-48 rounded-lg shadow-md object-contain mx-auto"
               />
             </div>
+
+            {/* Upload another button */}
+            <button
+              onClick={handleClearPreview}
+              type="button"
+              className="mt-3 w-full px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors text-sm"
+            >
+              📤 อัปโหลดรูปอื่น
+            </button>
           </div>
         )}
       </div>

@@ -13,24 +13,36 @@ export enum BlogStatus {
 }
 
 /**
+ * Blog Image from API (gallery item)
+ */
+export interface BlogImage {
+  id: string;
+  blogId: string;
+  imageUrl: string;
+  createdAt: string;
+}
+
+/**
  * Blog Entity from API
  */
 export interface Blog {
-  id: number;
+  id: string; // UUID from backend
   title: string;
   slug?: string;
   excerpt?: string;
   content: string;
   featuredImage?: string;
   coverImageUrl?: string;
-  additionalImages?: string[];
+  additionalImages?: string[]; // For form submission
+  images?: BlogImage[]; // Gallery images from API
   status: BlogStatus;
-  views?: number;
-  authorId: number;
+  viewCount?: number;
+  authorId?: string; // UUID from backend
   createdAt: string;
   updatedAt: string;
+  publishedAt?: string | null;
   author?: {
-    id: number;
+    id: string; // UUID from backend
     name: string;
     email: string;
   };
