@@ -8,7 +8,15 @@
  * Login Request Payload
  */
 export interface LoginCredentials {
-  email: string;
+  username: string;
+  password: string;
+}
+
+/**
+ * Register Request Payload
+ */
+export interface RegisterCredentials {
+  username: string;
   password: string;
 }
 
@@ -17,11 +25,15 @@ export interface LoginCredentials {
  */
 export interface LoginResponse {
   access_token: string;
-  user?: {
-    id: number;
-    email: string;
-    name?: string;
-  };
+  username?: string;
+}
+
+/**
+ * Register Response from Backend API
+ */
+export interface RegisterResponse {
+  access_token: string;
+  username: string;
 }
 
 /**
@@ -29,7 +41,7 @@ export interface LoginResponse {
  */
 export interface AuthError {
   statusCode: number;
-  message: string;
+  message: string | string[];
   error?: string;
 }
 
@@ -38,6 +50,5 @@ export interface AuthError {
  */
 export interface UserSession {
   id: number;
-  email: string;
-  name?: string;
+  username: string;
 }

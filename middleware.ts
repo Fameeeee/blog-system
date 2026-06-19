@@ -1,9 +1,9 @@
 /**
  * Next.js Middleware - Route Protection
  * 
- * Protects all /admin routes except /admin/login
- * - If no token and not on login page → redirect to /admin/login
- * - If token exists and on login page → redirect to /admin/dashboard
+ * Protects all /admin routes except /admin/login and /admin/register
+ * - If no token and not on login/register page → redirect to /admin/login
+ * - If token exists and on login/register page → redirect to /admin/dashboard
  * 
  * This runs on Edge Runtime for optimal performance
  */
@@ -13,6 +13,7 @@ import type { NextRequest } from 'next/server';
 
 const TOKEN_COOKIE_NAME = 'access_token';
 const LOGIN_PATH = '/admin/login';
+const REGISTER_PATH = '/admin/register';
 const DASHBOARD_PATH = '/admin/dashboard';
 
 /**
@@ -27,22 +28,24 @@ export function middleware(request: NextRequest) {
   // Check if user is authenticated
   const isAuthenticated = !!token;
   
-  // Check if current path is the login page
+  // Check if current path is login or register page
   const isLoginPage = pathname === LOGIN_PATH;
+  const isRegisterPage = pathname === REGISTER_PATH;
+  const isPublicAuthPage = isLoginPage || isRegisterPage;
   
   // Check if trying to access protected admin routes
   const isAdminRoute = pathname.startsWith('/admin');
 
-  // CASE 1: User has token and is on login page
+  // CASE 1: User has token and is on login/register page
   // → Redirect to dashboard (already logged in)
-  if (isAuthenticated && isLoginPage) {
+  if (isAuthenticated && isPublicAuthPage) {
     const dashboardUrl = new URL(DASHBOARD_PATH, request.url);
     return NextResponse.redirect(dashboardUrl);
   }
 
-  // CASE 2: User has NO token and is on a protected admin route (not login)
+  // CASE 2: User has NO token and is on a protected admin route (not login/register)
   // → Redirect to login page
-  if (!isAuthenticated && isAdminRoute && !isLoginPage) {
+  if (!isAuthenticated && isAdminRoute && !isPublicAuthPage) {
     const loginUrl = new URL(LOGIN_PATH, request.url);
     // Preserve the original URL as a redirect parameter (optional)
     loginUrl.searchParams.set('redirect', pathname);
