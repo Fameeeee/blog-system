@@ -51,7 +51,7 @@ export default function CommentsPage() {
     mutate,
   } = useSWR(
     token ? ['comments', { page, limit, status: statusFilter }] : null,
-    () => fetchAllComments({ page, limit, status: statusFilter }, token || undefined),
+    () => fetchAllComments({ page, limit, status: statusFilter || undefined }, token || undefined),
     {
       revalidateOnFocus: false,
       onError: (err) => {
