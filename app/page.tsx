@@ -61,13 +61,21 @@ export default async function BlogListPage({ searchParams }: BlogListPageProps) 
       <div className="min-h-screen bg-gray-50 text-black">
         {/* Header */}
         <div className="bg-white border-b border-gray-200">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
-              📚 บล็อก
-            </h1>
-            <p className="text-gray-600">
-              อ่านบทความและเรียนรู้เรื่องราวที่น่าสนใจต่าง ๆ
-            </p>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 flex justify-between items-start">
+            <div>
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">
+                📚 บล็อก
+              </h1>
+              <p className="text-gray-600">
+                อ่านบทความและเรียนรู้เรื่องราวที่น่าสนใจต่าง ๆ
+              </p>
+            </div>
+            <Link
+              href="/admin/login"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium whitespace-nowrap"
+            >
+              🔐 Admin
+            </Link>
           </div>
         </div>
 
